@@ -1,0 +1,3 @@
+-- Produtos para o almoxarifado
+
+INSERT INTO produtos (nome, codigo, quantidade, localizacao, data_criacao) VALUES ('Parafuso Philips 3x20mm', 'PAR-001', 1500, 'Caixa 12, Prateleira A1', NOW()),('Porca Sextavada M8', 'POR-001', 800, 'Gaveta 5, Módulo B', NOW()),('Chave de Fenda 6x100mm', 'FER-001', 45, 'Painel 2, Ferramentas', NOW()),('Alicate Universal 8"', 'FER-002', 28, 'Painel 3, Ferramentas', NOW()),('Fita Isolante 10m Preta', 'ELT-001', 320, 'Prateleira D1, Elétricos', NOW()),('Interruptor Simples 10A', 'ELT-002', 95, 'Caixa 22, Elétricos', NOW());
