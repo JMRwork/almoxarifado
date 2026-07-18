@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-AlmoxarifadoApplication<almoxarifado>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/almoxarifado_backend",
+            "mainClass": "edu.infnet.almoxarifado.AlmoxarifadoApplication",
+            "projectName": "almoxarifado",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

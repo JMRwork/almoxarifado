@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProdutoResponseDTO {
+public class ItemsResponseDTO {
     private Long id;
     private String nome;
     private String codigo;

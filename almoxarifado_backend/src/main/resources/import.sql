@@ -1,3 +1,9 @@
 -- Produtos para o almoxarifado
 
-INSERT INTO produtos (nome, codigo, quantidade, localizacao, data_criacao) VALUES ('Parafuso Philips 3x20mm', 'PAR-001', 1500, 'Caixa 12, Prateleira A1', NOW()),('Porca Sextavada M8', 'POR-001', 800, 'Gaveta 5, Módulo B', NOW()),('Chave de Fenda 6x100mm', 'FER-001', 45, 'Painel 2, Ferramentas', NOW()),('Alicate Universal 8"', 'FER-002', 28, 'Painel 3, Ferramentas', NOW()),('Fita Isolante 10m Preta', 'ELT-001', 320, 'Prateleira D1, Elétricos', NOW()),('Interruptor Simples 10A', 'ELT-002', 95, 'Caixa 22, Elétricos', NOW());
+INSERT INTO produtos (nome, codigo, quantidade, quantidade_minima, localizacao, data_criacao) VALUES ('Parafuso Philips 3x20mm', 'PAR-001', 1500, 1, 'Caixa 12, Prateleira A1', NOW()),('Porca Sextavada M8', 'POR-001', 800, 1, 'Gaveta 5, Módulo B', NOW()),('Chave de Fenda 6x100mm', 'FER-001', 45, 1, 'Painel 2, Ferramentas', NOW()),('Alicate Universal 8"', 'FER-002', 28, 1, 'Painel 3, Ferramentas', NOW()),('Fita Isolante 10m Preta', 'ELT-001', 320, 1, 'Prateleira D1, Elétricos', NOW()),('Interruptor Simples 10A', 'ELT-002', 95, 1, 'Caixa 22, Elétricos', NOW());
+
+INSERT INTO revinfo (rev, revtstmp) VALUES (1, EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), (2, EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), (3, EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), (4, EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), (5, EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000), (6, EXTRACT(EPOCH FROM CURRENT_TIMESTAMP) * 1000);
+
+INSERT INTO produtos_aud (revtype, codigo, data_criacao, localizacao, nome, quantidade, quantidade_minima, rev, id) VALUES (0,'PAR-001',NOW(),'Caixa 12, Prateleira A1','Parafuso Philips 3x20mm',1500,1,1,1), (0,'POR-001',NOW(),'Gaveta 5, Módulo B','Porca Sextavada M8',800,1,2,2), (0,'FER-001',NOW(),'Painel 2, Ferramentas','Chave de Fenda 6x100mm',45,1,3,3),(0,'FER-002',NOW(),'Painel 3, Ferramentas','Alicate Universal 8\"',28,1,4,4), (0,'ELT-001',NOW(),'Prateleira D1, Elétricos','Fita Isolante 10m Preta',320,1,5,5), (0,'ELT-002',NOW(),'Caixa 22, Elétricos','Interruptor Simples 10A',95,1,6,6);
+
+ALTER TABLE PUBLIC.REVINFO ALTER COLUMN REV RESTART WITH 7;

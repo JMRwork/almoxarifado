@@ -2,6 +2,9 @@ package edu.infnet.almoxarifado.models;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.envers.Audited;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,7 +23,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Produto {
+@Audited
+public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +38,10 @@ public class Produto {
 
     @Column(nullable = false)
     private Integer quantidade;
+
+    @Column(nullable = false)
+    @ColumnDefault("1")
+    private Integer quantidadeMinima;
 
     @Column(length = 200)
     private String localizacao;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const ProductForm = ({ initialData, onSave, onCancel }) => {
+const ItemForm = ({ initialData, onSave, onCancel }) => {
     const [formData, setFormData] = useState({
         nome: '',
         codigo: '',
@@ -40,7 +40,7 @@ const ProductForm = ({ initialData, onSave, onCancel }) => {
     return (
         <div className="modal-overlay">
             <div className="modal">
-                <h3>{initialData ? 'Editar Produto' : 'Novo Produto'}</h3>
+                <h3>{initialData ? 'Editar Item' : 'Novo Item'}</h3>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label>Nome *</label>
@@ -96,4 +96,4 @@ const ProductForm = ({ initialData, onSave, onCancel }) => {
     );
 };
 
-export default ProductForm;
+export default ItemForm;
