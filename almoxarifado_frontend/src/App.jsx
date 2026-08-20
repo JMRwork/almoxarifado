@@ -1,91 +1,128 @@
 import { useState, useEffect } from 'react';
 import ItemList from './components/ItemList';
 import ItemForm from './components/ItemForm';
+import ServicoList from './components/ServicoList';
+import ServicoForm from './components/ServicoForm';
 import DeleteConfirmation from './components/DeleteConfirmation';
 import ItemHistory from './components/ItemHistory';
+import ApiTabs from './components/ApiTabs';
 import './App.css';
 
 function App() {
+  const GATEWAY_URL = 'http://localhost:8080';
+  const ITEMS_URL = `${GATEWAY_URL}/items-service`;
+  const SERVICOS_URL = `${GATEWAY_URL}/servicos-service`;
+
+  const [activeTab, setActiveTab] = useState('items');
   const [itens, setItens] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [servicos, setServicos] = useState([]);
+  const [loading, setLoading] = useState({ items: true, servicos: true });
+  const [error, setError] = useState({ items: '', servicos: '' });
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [historyId, setHistoryId] = useState(null);
 
-  // Carregar itens ao iniciar
   useEffect(() => {
     fetchItems();
+    fetchServicos();
   }, []);
 
   const fetchItems = async () => {
-    setLoading(true);
-    await fetch('http://localhost:8080/items')
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error('Erro ao carregar itens');
-        }
+    setLoading((prev) => ({ ...prev, items: true }));
+    try {
+      const response = await fetch(`${ITEMS_URL}/items`);
+      if (!response.ok) throw new Error('Erro ao carregar itens');
+      const data = await response.json();
+      setItens(data);
+      setError((prev) => ({ ...prev, items: '' }));
+    } catch (err) {
+      setError((prev) => ({ ...prev, items: 'Não foi possível carregar os itens. Verifique se o microserviço Items está rodando.' }));
+      console.error('Erro ao carregar itens:', err);
+    } finally {
+      setLoading((prev) => ({ ...prev, items: false }));
+    }
+  };
 
-        return res.json();
-      })
-      .then((data) => {
-        setError(null);
-        setItens(data);
-      })
-      .catch((err) => {
-        setError('Não foi possível carregar os itens. Verifique se o backend está rodando.');
-        console.error('Erro ao carregar itens:', err);
-      })
-      .finally(() => setLoading(false));
+  const fetchServicos = async () => {
+    setLoading((prev) => ({ ...prev, servicos: true }));
+    try {
+      const response = await fetch(`${SERVICOS_URL}/servicos`);
+      if (!response.ok) throw new Error('Erro ao carregar serviços');
+      const data = await response.json();
+      setServicos(data);
+      setError((prev) => ({ ...prev, servicos: '' }));
+    } catch (err) {
+      setError((prev) => ({ ...prev, servicos: 'Não foi possível carregar os serviços. Verifique se o microserviço Serviços está rodando.' }));
+      console.error('Erro ao carregar serviços:', err);
+    } finally {
+      setLoading((prev) => ({ ...prev, servicos: false }));
+    }
   };
 
   const handleSave = async (itemData) => {
-    await fetch(`http://localhost:8080/items${editingItem ? `/${editingItem.id}` : ''}`, {
-      method: editingItem ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify(itemData),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          return res.json().then((data) => {
-            throw new Error(data.error || 'Erro ao salvar item');
-          });
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setError(null);
-        fetchItems();
-        handleCloseForm();
-      })
-      .catch((err) => {
-        setError('Não foi possível salvar o item. Verifique os dados informados.');
-        console.error('Erro ao salvar item:', err);
+    const isServico = activeTab === 'servicos';
+    const baseUrl = isServico ? SERVICOS_URL : ITEMS_URL;
+    const endpoint = isServico ? '/servicos' : '/items';
+
+    try {
+      const response = await fetch(`${baseUrl}${endpoint}${editingItem ? `/${editingItem.id}` : ''}`, {
+        method: editingItem ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(itemData),
       });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || payload.message || `Erro ao salvar ${isServico ? 'serviço' : 'item'}`);
+      }
+
+      if (isServico) {
+        fetchItems();
+        fetchServicos();
+      } else {
+        fetchItems();
+      }
+
+      handleCloseForm();
+    } catch (err) {
+      setError((prev) => ({
+        ...prev,
+        [activeTab]: `Não foi possível salvar ${isServico ? 'o serviço' : 'o item'}. Verifique os dados informados.`,
+      }));
+      console.error('Erro ao salvar:', err);
+    }
   };
 
   const handleDelete = async () => {
-    await fetch(`http://localhost:8080/items/${deletingId}`, {
-      method: 'DELETE',
-    })
-      .then((res) => {
-        if (!res.ok) {
-          return res.json().then((data) => {
-            throw new Error(data.error || 'Erro ao excluir item');
-          });
-        }
-        return null;
-      })
-      .then(() => {
-        setError(null);
-        fetchItems();
-        setDeletingId(null);
-      })
-      .catch((err) => {
-        setError('Não foi possível excluir o item. Tente novamente.');
-        console.error('Erro ao excluir item:', err);
+    const isServico = activeTab === 'servicos';
+    const baseUrl = isServico ? SERVICOS_URL : ITEMS_URL;
+    const endpoint = isServico ? '/servicos' : '/items';
+
+    try {
+      const response = await fetch(`${baseUrl}${endpoint}/${deletingId}`, {
+        method: 'DELETE',
       });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || payload.message || `Erro ao excluir ${isServico ? 'serviço' : 'item'}`);
+      }
+
+      if (isServico) {
+        fetchServicos();
+      } else {
+        fetchItems();
+      }
+
+      setDeletingId(null);
+    } catch (err) {
+      setError((prev) => ({
+        ...prev,
+        [activeTab]: `Não foi possível excluir ${isServico ? 'o serviço' : 'o item'}. Tente novamente.`,
+      }));
+      console.error('Erro ao excluir:', err);
+    }
   };
 
   const handleEdit = (item) => {
@@ -107,55 +144,72 @@ function App() {
     setHistoryId(itemId);
   };
 
-  // Função para voltar da tela de histórico
   const handleBackFromHistory = () => {
     setHistoryId(null);
   };
 
   if (historyId) {
     return (
-      <div class="container">
-        <ItemHistory
-          itemId={historyId} onBack={handleBackFromHistory}
-        />
+      <div className="container">
+        <ItemHistory itemId={historyId} onBack={handleBackFromHistory} />
       </div>
     );
   }
+
+  const currentTabLabel = activeTab === 'servicos' ? 'Serviços' : 'Itens';
+  const currentItems = activeTab === 'servicos' ? servicos : itens;
+  const currentLoading = loading[activeTab];
+  const currentError = error[activeTab];
 
   return (
     <div className="container">
       <header>
         <h1>📦 Controle de Almoxarifado</h1>
-        <p>Gestão de itens do armazém</p>
+        <p>Gestão de itens e serviços do armazém</p>
       </header>
 
+      <ApiTabs activeTab={activeTab} onChange={setActiveTab} />
+
       <button className="add-button btn-primary" onClick={handleOpenNew}>
-        + Novo Item
+        + Novo {activeTab === 'servicos' ? 'Serviço' : 'Item'}
       </button>
 
-      {error && <div className="error-message">{error}</div>}
+      {currentError && <div className="error-message">{currentError}</div>}
 
-      {loading ? (
-        <div className="loading">Carregando itens...</div>
+      {currentLoading ? (
+        <div className="loading">Carregando {currentTabLabel.toLowerCase()}...</div>
+      ) : activeTab === 'servicos' ? (
+        <ServicoList
+          items={currentItems}
+          onEdit={handleEdit}
+          onDelete={(id) => setDeletingId(id)}
+        />
       ) : (
         <ItemList
-          items={itens}
+          items={currentItems}
           onEdit={handleEdit}
           onDelete={(id) => setDeletingId(id)}
           onHistory={(id) => handleOpenHistory(id)}
         />
       )}
 
-      {/* Modal de formulário (cadastro/edição) */}
       {showForm && (
-        <ItemForm
-          initialData={editingItem}
-          onSave={handleSave}
-          onCancel={handleCloseForm}
-        />
+        activeTab === 'servicos' ? (
+          <ServicoForm
+            initialData={editingItem}
+            itens={itens}
+            onSave={handleSave}
+            onCancel={handleCloseForm}
+          />
+        ) : (
+          <ItemForm
+            initialData={editingItem}
+            onSave={handleSave}
+            onCancel={handleCloseForm}
+          />
+        )
       )}
 
-      {/* Modal de confirmação de exclusão */}
       {deletingId && (
         <DeleteConfirmation
           onConfirm={handleDelete}

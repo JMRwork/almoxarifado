@@ -2,11 +2,72 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Spring Boot-AlmoxarifadoApplication<almoxarifado>",
+            "name": "AlmoxarifadoServerApplication",
             "request": "launch",
-            "cwd": "${workspaceFolder}/almoxarifado_backend",
+            "mainClass": "edu.infnet.almoxarifado.AlmoxarifadoServerApplication",
+            "projectName": "almoxarifado"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot - Server",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/almoxarifado_server",
+            "mainClass": "edu.infnet.almoxarifado.AlmoxarifadoServerApplication",
+            "projectName": "almoxarifado_server",
+            "preLaunchTask": "Build Server"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot - Gateway",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/almoxarifado_gateway",
+            "mainClass": "edu.infnet.almoxarifado_gateway.AlmoxarifadoGatewayApplication",
+            "preLaunchTask": "Build Gateway"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot - Items",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/almoxarifado_items",
             "mainClass": "edu.infnet.almoxarifado.AlmoxarifadoApplication",
-            "projectName": "almoxarifado",
+            "projectName": "almoxarifado_items",
+            "preLaunchTask": "Build Items"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot - Servicos",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/almoxarifado_servicos",
+            "mainClass": "edu.infnet.almoxarifado_servicos.AlmoxarifadoServicosApplication",
+            "preLaunchTask": "Build Servicos"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AlmoxarifadoGatewayApplication<edu.infnet-almoxarifado_gateway>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "edu.infnet.almoxarifado_gateway.AlmoxarifadoGatewayApplication",
+            "projectName": "edu.infnet-almoxarifado_gateway",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AlmoxarifadoApplication<edu.infnet-almoxarifado>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "edu.infnet.almoxarifado.AlmoxarifadoApplication",
+            "projectName": "edu.infnet-almoxarifado",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-AlmoxarifadoServicosApplication<edu.infnet-almoxarifado_servicos>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "edu.infnet.almoxarifado_servicos.AlmoxarifadoServicosApplication",
+            "projectName": "edu.infnet-almoxarifado_servicos",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

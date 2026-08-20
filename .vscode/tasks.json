@@ -1,0 +1,91 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Server",
+            "type": "shell",
+            "command": ".\\mvnw.cmd",
+            "args": [
+                "clean",
+                "package",
+                "-DskipTests"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/almoxarifado_server"
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Build Gateway",
+            "type": "shell",
+            "command": ".\\mvnw.cmd",
+            "args": [
+                "clean",
+                "package",
+                "-DskipTests"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/almoxarifado_gateway"
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Build Items",
+            "type": "shell",
+            "command": ".\\mvnw.cmd",
+            "args": [
+                "clean",
+                "package",
+                "-DskipTests"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/almoxarifado_items"
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Build Servicos",
+            "type": "shell",
+            "command": ".\\mvnw.cmd",
+            "args": [
+                "clean",
+                "package",
+                "-DskipTests"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/almoxarifado_servicos"
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "type": "java (build)",
+            "paths": [
+                "${workspace}"
+            ],
+            "isFullBuild": false,
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "label": "java (build): Build Workspace",
+            "detail": "$(tools) Build all the Java projects in workspace."
+        }
+    ]
+}
