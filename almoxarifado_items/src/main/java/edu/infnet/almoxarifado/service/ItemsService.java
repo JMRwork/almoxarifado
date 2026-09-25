@@ -88,6 +88,17 @@ public class ItemsService {
         itemRepository.deleteById(id);
     }
 
+    public void ajustarQuantidade(Long id, Integer delta) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Item não encontrado com id: " + id));
+        int quantidadeAtualizada = item.getQuantidade() + delta;
+        if (quantidadeAtualizada < 0) {
+            throw new IllegalArgumentException("Estoque insuficiente para o item: " + id);
+        }
+        item.setQuantidade(quantidadeAtualizada);
+        itemRepository.save(item);
+    }
+
     private ItemsResponseDTO toResponseDTO(Item item) {
         return ItemsResponseDTO.builder()
                 .id(item.getId())

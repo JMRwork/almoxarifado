@@ -8,7 +8,7 @@ const ItemHistory = ({ itemId, onBack }) => {
     useEffect(() => {
         const fetchHistorico = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/historico/items/${itemId}`);
+                const response = await fetch(`http://localhost:8080/items-service/historico/items/${itemId}`);
                 if (!response.ok) {
                     throw new Error('Erro ao carregar histórico');
                 }

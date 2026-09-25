@@ -3,6 +3,7 @@ package edu.infnet.almoxarifado_servicos.application;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,16 +11,26 @@ import edu.infnet.almoxarifado_servicos.domain.Item;
 import edu.infnet.almoxarifado_servicos.domain.Servico;
 import edu.infnet.almoxarifado_servicos.infrastructure.ServicoRepository;
 import edu.infnet.almoxarifado_servicos.interfaces.ItemClient;
+import edu.infnet.almoxarifado_servicos.messaging.EstoqueAjusteEvent;
+import edu.infnet.almoxarifado_servicos.messaging.EstoqueEventPublisher;
 
 @Service
 public class ServicoUseCase {
 
     private final ServicoRepository repository;
     private final ItemClient itemClient;
+    private final EstoqueEventPublisher estoqueEventPublisher;
 
     public ServicoUseCase(ServicoRepository repository, ItemClient itemClient) {
+        this(repository, itemClient, event -> { });
+    }
+
+    @Autowired
+    public ServicoUseCase(ServicoRepository repository, ItemClient itemClient,
+            EstoqueEventPublisher estoqueEventPublisher) {
         this.repository = repository;
         this.itemClient = itemClient;
+        this.estoqueEventPublisher = estoqueEventPublisher;
     }
 
     @Transactional
@@ -30,19 +41,10 @@ public class ServicoUseCase {
                 .items(new ArrayList<>(items))
                 .build();
 
-        repository.save(servico);
-        items.stream().forEach(item -> {
-            Item itemCadastrado = itemsCadastrados.stream()
-                    .filter(itemCadastrado1 -> itemCadastrado1.getId().equals(item.getId()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Item não encontrado: " + item.getId()));
-            itemClient.atualizar(item.getId(), new Item(
-                    itemCadastrado.getId(),
-                    itemCadastrado.getNome(),
-                    itemCadastrado.getCodigo(),
-                    itemCadastrado.getQuantidade() - item.getQuantidade()));
-        });
-        return servico;
+        Servico salvo = repository.save(servico);
+        items.forEach(item -> estoqueEventPublisher.publicar(
+            new EstoqueAjusteEvent(salvo.getId(), item.getId(), -item.getQuantidade())));
+        return salvo;
     }
 
     @Transactional(readOnly = true)
@@ -63,42 +65,22 @@ public class ServicoUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado: " + id));
         atual.setIdentificador(identificador);
         atual.setDescricao(descricao);
-        List<Item> itemsServico = atual.getItems();
-        List<Item> itemsExistentes = new ArrayList<>();
-
-        for (Item itemServico : itemsServico) {
-            Item itemCadatrado = itemsCadastrados.stream()
-                    .filter(item -> item.getId().equals(itemServico.getId()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Item não encontrado: " + itemServico.getId()));
-
-            itemsExistentes.add(new Item(
-                    itemCadatrado.getId(),
-                    itemCadatrado.getNome(),
-                    itemCadatrado.getCodigo(),
-                    itemServico.getQuantidade() + itemCadatrado.getQuantidade()));
-        }
+        List<Item> itemsAnteriores = new ArrayList<>(atual.getItems());
         atual.setItems(new ArrayList<>(itemsAtualizados));
-        repository.save(atual);
-        atual.setItems(new ArrayList<>(itemsAtualizados));
-        repository.save(atual);
-        itemsExistentes.forEach(item -> {
-            itemsAtualizados.stream()
-                    .filter(itemAtualizado -> itemAtualizado.getId().equals(item.getId()))
-                    .findFirst()
-                    .ifPresentOrElse(itemsAtualizado -> {
-                        itemClient.atualizar(item.getId(), new Item(
-                                itemsAtualizado.getId(),
-                                itemsAtualizado.getNome(),
-                                itemsAtualizado.getCodigo(),
-                                item.getQuantidade() - itemsAtualizado.getQuantidade()));
-                    }, () -> {
-                        throw new IllegalArgumentException("Item não encontrado: " + item.getId());
-                    });
+        Servico salvo = repository.save(atual);
+        itemsAnteriores.forEach(item -> {
+            Item atualizado = itemsAtualizados.stream()
+                .filter(itemAtualizado -> itemAtualizado.getId().equals(item.getId()))
+                .findFirst().orElse(null);
+            int novaQuantidade = atualizado == null ? 0 : atualizado.getQuantidade();
+            estoqueEventPublisher.publicar(new EstoqueAjusteEvent(
+                salvo.getId(), item.getId(), item.getQuantidade() - novaQuantidade));
         });
-        ;
-        return atual;
+        itemsAtualizados.stream()
+            .filter(item -> itemsAnteriores.stream().noneMatch(anterior -> anterior.getId().equals(item.getId())))
+            .forEach(item -> estoqueEventPublisher.publicar(
+                new EstoqueAjusteEvent(salvo.getId(), item.getId(), -item.getQuantidade())));
+        return salvo;
     }
 
     @Transactional
