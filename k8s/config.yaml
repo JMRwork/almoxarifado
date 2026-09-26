@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rabbitmq-credentials
+  namespace: almoxarifado
+type: Opaque
+stringData:
+  RABBITMQ_USERNAME: almoxarifado
+  RABBITMQ_PASSWORD: almoxarifado
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: almoxarifado-runtime
+  namespace: almoxarifado
+data:
+  SPRING_CONFIG_IMPORT: optional:configserver:http://server:8888
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://server:8888/eureka/
+  ALMOXARIFADO_ITEMS_URL: http://items:8081
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: "5672"
+  MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics,prometheus

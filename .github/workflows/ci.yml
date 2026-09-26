@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-package:
+    name: Test ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: gateway
+            path: almoxarifado_gateway
+          - name: server
+            path: almoxarifado_server
+          - name: items
+            path: almoxarifado_items
+          - name: servicos
+            path: almoxarifado_servicos
+    defaults:
+      run:
+        working-directory: ${{ matrix.path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Testes
+        run: |
+          chmod +x mvnw
+          ./mvnw test --batch-mode
+
+      - name: Empacotamento
+        run: ./mvnw package -DskipTests --batch-mode

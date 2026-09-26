@@ -12,5 +12,65 @@ services:
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
 
+  server:
+    build: ./almoxarifado_server
+    ports:
+      - "8888:8888"
+    restart: unless-stopped
+
+  gateway:
+    build: ./almoxarifado_gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://server:8888/eureka/
+    depends_on:
+      - server
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./almoxarifado_frontend
+      args:
+        VITE_GATEWAY_URL: http://localhost:8080
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+    restart: unless-stopped
+
+  items:
+    build: ./almoxarifado_items
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://server:8888/eureka/
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: almoxarifado
+      RABBITMQ_PASSWORD: almoxarifado
+    depends_on:
+      - server
+      - rabbitmq
+    restart: unless-stopped
+
+  servicos:
+    build: ./almoxarifado_servicos
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_CONFIG_IMPORT: optional:configserver:http://server:8888
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://server:8888/eureka/
+      ALMOXARIFADO_ITEMS_URL: http://items:8081
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: almoxarifado
+      RABBITMQ_PASSWORD: almoxarifado
+    depends_on:
+      - server
+      - rabbitmq
+      - items
+    restart: unless-stopped
+
 volumes:
   rabbitmq-data:

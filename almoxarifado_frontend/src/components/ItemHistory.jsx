@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:8080';
+
 const ItemHistory = ({ itemId, onBack }) => {
     const [historico, setHistorico] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -8,7 +10,7 @@ const ItemHistory = ({ itemId, onBack }) => {
     useEffect(() => {
         const fetchHistorico = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/items-service/historico/items/${itemId}`);
+                const response = await fetch(`${GATEWAY_URL}/items-service/historico/items/${itemId}`);
                 if (!response.ok) {
                     throw new Error('Erro ao carregar histórico');
                 }

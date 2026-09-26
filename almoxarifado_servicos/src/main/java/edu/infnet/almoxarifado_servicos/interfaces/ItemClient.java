@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import edu.infnet.almoxarifado_servicos.domain.Item;
 
-@FeignClient(name = "almoxarifado", url = "${almoxarifado.items.url:http://localhost:8080/items-service}")
+@FeignClient(name = "almoxarifado", url = "${almoxarifado.items.url:http://localhost:8081}")
 public interface ItemClient {
 
     @GetMapping("/items")

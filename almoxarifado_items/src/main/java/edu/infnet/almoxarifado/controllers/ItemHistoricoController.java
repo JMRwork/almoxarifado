@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("historico")
-@CrossOrigin("http://localhost:5173")
 public class ItemHistoricoController {
 
     private ItemHistoricoService service;

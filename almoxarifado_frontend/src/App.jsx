@@ -9,7 +9,7 @@ import ApiTabs from './components/ApiTabs';
 import './App.css';
 
 function App() {
-  const GATEWAY_URL = 'http://localhost:8080';
+  const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:8080';
   const ITEMS_URL = `${GATEWAY_URL}/items-service`;
   const SERVICOS_URL = `${GATEWAY_URL}/servicos-service`;
 
